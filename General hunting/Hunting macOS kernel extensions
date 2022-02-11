@@ -1,0 +1,9 @@
+https://www.reddit.com/r/crowdstrike/comments/mijvb0/20210402_cool_query_friday_hunting_macos_kernel/
+
+event_platform=mac event_simpleName=KextLoad 
+| search BundleID!=com.apple.* 
+| lookup aid_master aid OUTPUT Version, SystemProductName
+| rex field=Version "^(?<osVersion>[^.]*)\("
+| fillnull osVersion value="Unknown"
+| stats values(ComputerName) as endpointName dc(BundleID) as nonAppleKernelCount values(BundleID) as nonAppleKernelExt by aid, osVersion, SystemProductName
+| sort - nonAppleKernelCount

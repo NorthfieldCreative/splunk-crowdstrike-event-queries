@@ -1,0 +1,6 @@
+event_simpleName=DnsRequest 
+| where isnotnull(RespondingDnsServer)
+| fields aip, aid, cid, company, ComputerName, DomainName, RespondingDnsServer
+| rex field=DomainName "[\.](?<tlDomain>\w+\.\w+)$"
+| stats dc(aid) as uniqueEndpoints count(aid) as totalResoultions dc(tlDomain) as domainsResolved by RespondingDnsServer
+| sort - totalResoultions

@@ -1,0 +1,21 @@
+https://www.reddit.com/r/crowdstrike/comments/mngo2l/20210408_cool_query_friday_windows_dump_files/
+
+event_platform=win (event_simpleName=ProcessRollup2 OR event_simpleName=SyntheticProcessRollup2) AND FileName=werfault.exe
+| stats dc(aid) as endpointCount count(aid) as crashCount by ParentBaseFileName
+| sort - crashCount
+| rename ParentBaseFileName as crashingProgram
+
+
+### after the above, input an IDd program below to find the dmp file ###
+
+
+
+(event_simpleName=ProcessRollup2 OR event_simpleName=SyntheticProcessRollup2) AND FileName=WerFault.exe AND executablefilename.exe
+| rename TargetProcessId_decimal AS ContextProcessId_decimal, FileName as crashProcessor, ParentBaseFileName as crashingProgram, RawProcessId_decimal as osPID
+| join aid, ContextProcessId_decimal 
+    [search event_simpleName=DmpFileWritten]
+| table timestamp aid ComputerName UserName crashProcessor crashingProgram TargetFileName ContextProcessId_decimal, osPID
+| sort + timestamp
+| eval timestamp=timestamp/1000
+| convert ctime(timestamp)
+| rename ComputerName as endpointName, UserName as userName, TargetFileName as dmpFile, ContextTimeStamp_decimal, as crashTime, ContextProcessId_decimal as falconPID

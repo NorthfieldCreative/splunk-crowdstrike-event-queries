@@ -1,0 +1,4 @@
+event_platform=win event_simpleName=ProcessRollup2 FileName=PowerShell.exe
+| stats count(aid) as psExecutionCount dc(aid) as uniqueSystemCount earliest(ProcessStartTime_decimal) as earliestExecution latest(ProcessStartTime_decimal) as latestExecution values(ComputerName) as endpointHostnames by aid
+| convert ctime(earliestExecution) ctime(latestExecution)
+| sort - psExecutionCount

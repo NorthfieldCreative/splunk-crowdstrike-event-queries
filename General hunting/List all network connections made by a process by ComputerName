@@ -1,0 +1,6 @@
+ComputerName=7634yt2 (event_simpleName=ProcessRollup2 OR event_simpleName=NetworkConnectIP4 OR DnsRequest)
+| rename ContextProcessId_decimal AS TargetProcessId_decimal
+| eval smashedEvent=coalesce(aid,TargetProcessId_decimal)
+| transaction smashedEvent
+| stats list(event_simpleName) values(RemoteIP) values(DomainName) by ComputerName, TargetProcessId_decimal, aid, FileName, RPort
+| sort - ComputerName

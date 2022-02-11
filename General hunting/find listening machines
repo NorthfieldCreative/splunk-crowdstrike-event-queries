@@ -1,0 +1,10 @@
+https://www.reddit.com/r/crowdstrike/comments/n6xwv6/20210507_cool_query_friday_if_youre_listening/
+
+
+(event_platform=win AND event_simpleName=NetworkListenIP4 AND LPort>10000) OR (event_platform=win AND event_simpleName=ProcessRollup2) 
+| eval falconPID=mvappend(TargetProcessId_decimal, ContextProcessId_decimal)
+| lookup aid_master aid OUTPUT ProductType Version
+| eval Protocol=case(Protocol_decimal=1, "ICMP", Protocol_decimal=6, "TCP", Protocol_decimal=17, "UDP", Protocol_decimal=58, "IPv6-ICMP") 
+| eval SystemType=case(ProductType=1, "Workstation", ProductType=2, "Domain Controller", ProductType=3, "Server")
+| stats dc(event_simpleName) as events latest(SystemType) as systemType latest(Version) as osVersion latest(aip) as externalIP latest(LocalAddressIP4) as internalIP values(FileName) as listeningFile values(UserName) as userName values(UserSid_readable) as userSID values(LPort) as listeningPort values(Protocol) as listeningProtocol by aid, ComputerName, falconPID
+| where events > 1

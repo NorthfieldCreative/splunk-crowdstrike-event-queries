@@ -1,0 +1,8 @@
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 
+| rename FileName as runningExe
+| lookup local=true appinfo.csv SHA256HashData OUTPUT FileName FileDescription
+| eval runningExe=lower(runningExe)
+| eval FileName=lower(FileName)
+| where runningExe!=FileName
+| search FileName=cmd.exe ### not required but can search a specific file###
+| stats dc(aid) as "System Count" count(aid) as "Execution Count" values(runningExe) as "File On Disk" values(FileName) as "Cloud File Name" values(FileDescription) as "File Description" by SHA256HashData

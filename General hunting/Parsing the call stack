@@ -1,0 +1,37 @@
+https://www.reddit.com/r/crowdstrike/comments/mwuz92/20210423_cool_query_friday_parsing_the_call_stack/
+
+
+event_platform=win event_simpleName=ProcessRollup2 CallStackModuleNames=*
+| eval CallStackModuleNames=split(CallStackModuleNames, "|")
+| eval n=mvfilter(match(CallStackModuleNames, ".*exe") OR match(CallStackModuleNames, ".*dll"))
+| rex field=n ".*\\\\Device\\\\HarddiskVolume\d+(?<loadedFile>.*(\.dll|\.exe)).*"
+| stats dc(SHA256HashData) as SHA256values values(loadedFile) as loadedFiles dc(aid) as endpointCount count(aid) as loadCount by FileName
+| eval loadedFiles=mvfilter(match(loadedFiles, "\\\\temp\\\\"))
+| where isnotnull(loadedFiles)
+| sort + loadCount
+
+
+## see the things being loaded by CLI programs:
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 CallStackModuleNames=*
+| eval CallStackModuleNames=split(CallStackModuleNames, "|")
+| eval n=mvfilter(match(CallStackModuleNames, ".*exe") OR match(CallStackModuleNames, ".*dll"))
+| rex field=n ".*\\\\Device\\\\HarddiskVolume\d+(?<loadedFile>.*(\.dll|\.exe)).*"
+| stats dc(SHA256HashData) as SHA256values values(loadedFile) as loadedFiles dc(aid) as endpointCount count(aid) as loadCount by FileName
+| eval loadedFiles=mvfilter(match(loadedFiles, "\\\\temp\\\\"))
+| where isnotnull(loadedFiles)
+| sort + loadCount
+
+
+## see the stuff being loaded that isn't in the %SYSTEM% folder:
+
+event_platform=win event_simpleName=ProcessRollup2 CallStackModuleNames=*
+| eval CallStackModuleNames=split(CallStackModuleNames, "|")
+| eval n=mvfilter(match(CallStackModuleNames, ".*exe") OR match(CallStackModuleNames, ".*dll"))
+| rex field=n ".*\\\\Device\\\\HarddiskVolume\d+(?<loadedFile>.*(\.dll|\.exe)).*"
+| stats dc(SHA256HashData) as SHA256count values(loadedFile) as loadedFiles dc(aid) as endpointCount count(aid) as loadCount by FileName
+| eval loadedFiles=mvfilter(!match(loadedFiles, "\\\\Windows\\\\System32\\\\*"))
+| eval loadedFiles=mvfilter(!match(loadedFiles, "\\\\Windows\\\\SysWOW64\\\\*"))
+| eval loadedFiles=mvfilter(!match(loadedFiles, "\\\\Windows\\\\assembly\\\\*"))
+| where isnotnull(loadedFiles)
+| sort + loadCount

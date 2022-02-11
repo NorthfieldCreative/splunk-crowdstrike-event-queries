@@ -1,0 +1,75 @@
+
+https://www.reddit.com/r/crowdstrike/comments/mdo3dx/20210326_cool_query_friday_hunting_process/
+
+## HUNT FOR ANOMALIES ##
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 UserSid_readable=S-1-5-21-*
+| eval IntegrityLevel_hex=tostring(IntegrityLevel_decimal,"hex")
+| eval TokenType_decimal = replace(TokenType_decimal,"1", "PRIMARY")
+| eval TokenType_decimal = replace(TokenType_decimal,"2", "IMPERSONATION")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x0000", "UNSTRUSTED")
+| eval IntegrityLeve_hex = replace(IntegrityLevel_hex,"0x1000", "LOW")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2000", "MEDIUM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2100", "MEDIUM-HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x3000", "HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x4000", "SYSTEM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x5000", "PROTECTED")
+| search IntegrityLevel_hex=HIGH
+| stats count(aid) as executionCount dc(aid) as endpointCount dc(UserSid_readable) as userCount values(UserSid_readable) as userSIDs by FileName FilePath TokenType_decimal IntegrityLevel_hex
+| sort - executionCount
+
+
+
+## DIAL IN ON POWERSHELL USAGE ##
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 UserSid_readable=S-1-5-21-* FileName=powershell.exe
+| eval IntegrityLevel_hex=tostring(IntegrityLevel_decimal,"hex")
+| eval TokenType_decimal = replace(TokenType_decimal,"1", "PRIMARY")
+| eval TokenType_decimal = replace(TokenType_decimal,"2", "IMPERSONATION")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x0000", "UNSTRUSTED")
+| eval IntegrityLeve_hex = replace(IntegrityLevel_hex,"0x1000", "LOW")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2000", "MEDIUM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2100", "MEDIUM-HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x3000", "HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x4000", "SYSTEM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x5000", "PROTECTED")
+| search IntegrityLevel_hex=HIGH
+| stats count(aid) as executionCount dc(aid) as endpointCount dc(UserSid_readable) as userCount by FileName FilePath TokenType_decimal IntegrityLevel_hex CommandLine
+| sort - executionCount
+
+
+
+#### AppData directory ####
+
+event_platform=win event_simpleName=ProcessRollup2 UserSid_readable=S-1-5-21-* FilePath=*\\AppData\\*
+| eval IntegrityLevel_hex=tostring(IntegrityLevel_decimal,"hex")
+| eval TokenType_decimal = replace(TokenType_decimal,"1", "PRIMARY")
+| eval TokenType_decimal = replace(TokenType_decimal,"2", "IMPERSONATION")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x0000", "UNSTRUSTED")
+| eval IntegrityLeve_hex = replace(IntegrityLevel_hex,"0x1000", "LOW")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2000", "MEDIUM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2100", "MEDIUM-HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x3000", "HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x4000", "SYSTEM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x5000", "PROTECTED")
+| search IntegrityLevel_hex=HIGH
+| stats count(aid) as executionCount dc(aid) as endpointCount dc(UserSid_readable) as userCount by FileName FilePath TokenType_decimal IntegrityLevel_hex CommandLine
+| sort - executionCount
+
+
+####  see if anything running under a standard user SID has managed to weasel its way up to SYSTEM: ###
+
+event_platform=win event_simpleName=ProcessRollup2 UserSid_readable=S-1-5-21-*
+| eval IntegrityLevel_hex=tostring(IntegrityLevel_decimal,"hex")
+| eval TokenType_decimal = replace(TokenType_decimal,"1", "PRIMARY")
+| eval TokenType_decimal = replace(TokenType_decimal,"2", "IMPERSONATION")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x0000", "UNSTRUSTED")
+| eval IntegrityLeve_hex = replace(IntegrityLevel_hex,"0x1000", "LOW")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2000", "MEDIUM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x2100", "MEDIUM-HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x3000", "HIGH")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x4000", "SYSTEM")
+| eval IntegrityLevel_hex = replace(IntegrityLevel_hex,"0x5000", "PROTECTED")
+| search IntegrityLevel_hex=SYSTEM
+| stats count(aid) as executionCount dc(aid) as endpointCount dc(UserSid_readable) as userCount by FileName FilePath TokenType_decimal IntegrityLevel_hex CommandLine
+| sort - executionCount

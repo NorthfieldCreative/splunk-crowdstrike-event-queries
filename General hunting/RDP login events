@@ -1,0 +1,66 @@
+## https://www.reddit.com/r/crowdstrike/comments/ms2mlz/20210416_cool_query_friday_windows_rdp_user_login/
+
+event_platform=win event_simpleName=UserLogon LogonType_decimal=10 (RemoteIP!=172.16.0.0/12 AND RemoteIP!=192.168.0.0/16 AND RemoteIP!=10.0.0.0/8)
+| iplocation RemoteIP
+| stats values(UserName) as userNames dc(UserSid_readable) as userAccountsUsed count(UserSid_readable) as successfulLogins dc(Country) as countriesFrom by ComputerName, aid
+| sort - successfulLogins
+
+
+## RDP connections originating from outside the United States:
+
+event_platform=win event_simpleName=UserLogon LogonType_decimal=10 (RemoteIP!=172.16.0.0/12 AND RemoteIP!=192.168.0.0/16 AND RemoteIP!=10.0.0.0/8)
+| iplocation RemoteIP
+| where Country!="United States"
+| stats values(UserName) as userNames dc(UserSid_readable) as userAccountsUsed count(UserSid_readable) as successfulLogins values(Country) as countriesFrom dc(Country) as countriesCount by ComputerName, aid
+| sort - successfulLogins
+
+
+
+## user accounts making the most RDP connections:
+
+event_platform=win event_simpleName=UserLogon LogonType_decimal=10 (RemoteIP!=172.16.0.0/12 AND RemoteIP!=192.168.0.0/16 AND RemoteIP!=10.0.0.0/8)
+| iplocation RemoteIP
+| stats dc(aid) as systemsAccessed count(UserSid_readable) as totalRDPLogins values(Country) as countriesFrom dc(Country) as countriesCount by UserName, UserSid_readable
+| sort - totalRDPLogins
+
+
+
+## servers only:
+
+## Note the ProductType in the first line:
+## ProductType Value	System Type
+## 1	Workstation
+## 2	Domain Controller
+## 3	Server
+
+
+event_platform=win event_simpleName=UserLogon LogonType_decimal=10 ProductType=1 (RemoteIP!=172.16.0.0/12 AND RemoteIP!=192.168.0.0/16 AND RemoteIP!=10.0.0.0/8)
+| iplocation RemoteIP
+| stats dc(aid) as systemsAccessed count(UserSid_readable) as totalRDPLogins values(Country) as countriesFrom dc(Country) as countriesCount by UserName, UserSid_readable
+| sort - totalRDPLogins
+
+
+
+##  see all the OS versions by system type in your environment, give this a whirl:  ##
+
+| inputlookup aid_master 
+| eval ProductTypeName=case(ProductType=1, "Workstation", ProductType=2, "Domain Controller", ProductType=3, "Server")
+| stats values(Version) as osVersions by ProductType, ProductTypeName
+
+
+##  Adding speed and travel time information  ##
+
+event_platform=win event_simpleName=UserLogon (RemoteIP!=172.16.0.0/12 AND RemoteIP!=192.168.0.0/16 AND RemoteIP!=10.0.0.0/8)
+| iplocation RemoteIP 
+| stats earliest(LogonTime_decimal) as firstLogon earliest(lat) as lat1 earliest(lon) as lon1 earliest(Country) as country1 earliest(Region) as region1 earliest(City) as city1 latest(LogonTime_decimal) as lastLogon latest(lat) as lat2 latest(lon) as lon2 latest(Country) as country2 latest(Region) as region2 latest(City) as city2 dc(RemoteIP) as remoteIPCount by UserSid_readable, UserName
+| where remoteIPCount > 1
+| eval timeDelta=round((lastLogon-firstLogon)/60/60,2)
+| eval rlat1 = pi()*lat1/180, rlat2=pi()*lat2/180, rlat = pi()*(lat2-lat1)/180, rlon= pi()*(lon2-lon1)/180
+| eval a = sin(rlat/2) * sin(rlat/2) + cos(rlat1) * cos(rlat2) * sin(rlon/2) * sin(rlon/2) 
+| eval c = 2 * atan2(sqrt(a), sqrt(1-a)) 
+| eval distance = round((6371 * c),0)
+| eval speed=round((distance/timeDelta),2)
+| table UserSid_readable, UserName, firstLogon, country1, region1, city1, lastLogon, country2, region2, city2, timeDelta, distance, speed remoteIPCount
+| convert ctime(firstLogon), ctime(lastLogon)
+| sort - speed
+| rename UserSid_readable AS "User SID", UserName AS User, firstLogon AS "First Logon Time", country1 AS " First Country" region1 AS "First Region", city1 AS "First City", lastLogon AS "Last Logon Time", country2 AS "Last Country", region2 AS "Last Region", city2 AS "Last City", timeDelta AS "Elapsed Time (hours) ", distance AS "Kilometers Between GeoIP Locations", speed AS "Required Speed (km/h)", remoteIPCount as "Number of Remote Logins"
