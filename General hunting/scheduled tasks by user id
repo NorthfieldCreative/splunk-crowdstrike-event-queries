@@ -1,0 +1,1 @@
+event_simpleName="ScheduledTaskRegistered" | spath input=TaskXml output=UserId path=Task.Principals.Principal.UserId

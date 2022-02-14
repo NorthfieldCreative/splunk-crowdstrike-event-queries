@@ -1,0 +1,1 @@
+event_simpleName="ScheduledTaskRegistered" | spath input=TaskXml output=RunLevel path=Task.Principals.Principal.RunLevel

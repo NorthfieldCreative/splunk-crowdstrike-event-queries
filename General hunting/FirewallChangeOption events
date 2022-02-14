@@ -1,0 +1,3 @@
+event_simpleName=FirewallChangeOption |
+eval FirewallProfileDescription=case(FirewallProfile=0, "INVALID", FirewallProfile=1, "DOMAIN", FirewallProfile=2, "STANDARD", FirewallProfile=3, "PUBLIC") |
+table aid FirewallOption FirewallProfileDescription FirewallOptionNumericValue FirewallOptionStringValue

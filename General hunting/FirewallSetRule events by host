@@ -1,0 +1,1 @@
+event_simpleName=FirewallSetRule | stats values(FirewallRule) by aid

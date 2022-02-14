@@ -1,0 +1,2 @@
+event_simpleName=ScheduledTaskRegistered ClientComputerName!="" |
+stats values(TaskName) as TaskName values(TaskExecCommand) as TaskExecCommand values(TaskAuthor) as TaskAuthor values(ClientComputerName) as ClientComputerName values(RemoteAddressIP4) as RemoteAddressIP4 values(RemoteAddressIP6) as RemoteAddressIP6 by aid

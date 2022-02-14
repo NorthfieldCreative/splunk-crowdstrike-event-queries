@@ -1,0 +1,1 @@
+event_simpleName="ProcessRollup2" (FileName=w3wp.exe OR FileName=sqlservr.exe OR FileName=httpd.exe OR FileName=nginx.exe) UserName="LOCAL SYSTEM" | dedup aid | table ComputerName UserName ImageFileName CommandLine

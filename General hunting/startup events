@@ -1,0 +1,1 @@
+event_simpleName="ScheduledTaskRegistered" | spath input=TaskXml output=Trigger path=Task.Triggers.BootTrigger | search Trigger=*

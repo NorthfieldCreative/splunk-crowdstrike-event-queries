@@ -1,0 +1,1 @@
+event_simpleName=FirewallDeleteRule | table aid FirewallRuleId RemoteAddressIP4 RemoteAddressIP6

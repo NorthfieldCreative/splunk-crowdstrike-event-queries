@@ -1,0 +1,1 @@
+event_simpleName=ProcessRollup2 FileName=javaw.exe CommandLine=*appdata* CommandLine=*-jar*| table event_simpleName ComputerName timestamp TargetFileName SHA256HashData

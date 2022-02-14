@@ -1,0 +1,1 @@
+event_simpleName="ScheduledTaskRegistered" | spath input=TaskXml output=LogonType path=Task.Principals.Principal.LogonType

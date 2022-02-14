@@ -1,0 +1,1 @@
+event_simpleName=AsepValueUpdate RegObjectName=*\\Run (RegValueName=*\.jar OR ImageFileName=*\.jar OR CommandLineParameters=*\.jar) | table _time event_simpleName ContextImageFileName RegPostObjectName RegObjectName RegStringValue RegValueName CommandLineParameters ImageFileName | sort by -_time

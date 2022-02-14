@@ -1,0 +1,3 @@
+event_simpleName=ProcessRollup2 [search event_simpleName=FirewallChangeOption | rename ContextProcessId_decimal as TargetProcessId_decimal | fields aid ContextProcessId_decimal]
+Show me the responsible process responsible for disabling firewall
+event_simpleName=ProcessRollup2 [search event_simpleName=FirewallChangeOption FirewallOption=DisableFirewall | rename ContextProcessId_decimal as TargetProcessId_decimal | fields aid ContextProcessId_decimal]

@@ -1,0 +1,1 @@
+aid=my-aid event_simpleName=ProcessRollup2 earliest=-60m latest=now CommandLine=*content.outlook* FileName=winword.exe OR Filename=excel.exe OR Filename=POWERPNT.exe | eval splitter=split(CommandLine,"Outlook\\") | eval ShortFile=mvindex(splitter,-1) | table timestamp aid TargetProcessId_decimal ComputerName ShortFile CommandLine | sort – timestamp

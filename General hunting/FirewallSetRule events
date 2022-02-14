@@ -1,0 +1,1 @@
+event_simpleName=FirewallSetRule | table aid FirewallRule RemoteAddressIP4 RemoteAddressIP6

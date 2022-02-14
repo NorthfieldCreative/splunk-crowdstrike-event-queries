@@ -1,0 +1,1 @@
+event_simpleName=DnsRequest DomainName!=*google.com | regex DomainName=".*\..*" | stats values(ComputerName) count by DomainName | where count <4 | sort – count

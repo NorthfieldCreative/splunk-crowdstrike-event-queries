@@ -1,0 +1,9 @@
+event_simpleName=PeFileWritten | rename ContextProcessId_decimal as TargetProcessId_decimal | join TargetProcessId_decimal [search event_simpleName=ProcessRollup2 FileName=java.exe] | table _time cid aid Customer ComputerName event_simpleName UserName ImageFileName CommandLine TargetFileName FileName MD5HashData SHA256HashData CommandHistory | sort -_time
+
+
+
+
+
+## This NewExecutableWritten event is generated when an executable file extension is written, whether or not it is truly an executable file type. Any file that ends with a known executable file extension (such as .exe, .bat, .scr) generates this event.
+
+event_simpleName=NewExecutableWritten | rename ContextProcessId_decimal as TargetProcessId_decimal | join TargetProcessId_decimal [search event_simpleName=ProcessRollup2 FileName=java.exe] | table _time cid aid Customer ComputerName event_simpleName UserName ImageFileName CommandLine TargetFileName FileName MD5HashData SHA256HashData CommandHistory | sort -_time

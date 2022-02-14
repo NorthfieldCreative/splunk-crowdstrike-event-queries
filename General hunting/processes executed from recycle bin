@@ -1,0 +1,1 @@
+ImageFileName=*$Recycle.Bin* event_simpleName=ProcessRollup2 | stats values(name) values(MD5HashData) values(ComputerName) values(ImageFileName) count by aid

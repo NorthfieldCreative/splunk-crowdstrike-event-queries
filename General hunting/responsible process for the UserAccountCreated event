@@ -1,0 +1,1 @@
+event_simpleName=*ProcessRollup2 [search event_simpleName="UserAccountCreated" | rename RpcClientProcessId as TargetProcessId_decimal | fields aid TargetProcessId_decimal]

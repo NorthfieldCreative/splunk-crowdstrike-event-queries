@@ -1,0 +1,4 @@
+event_simpleName="DnsRequest" | rename ContextProcessId_decimal as TargetProcessId_decimal | join TargetProcessId_decimal [search aid=my-aid event_simpleName="ProcessRollup2" ImageFileName="*PROCESS"] | table ComputerName timestamp ImageFileName DomainName CommandLine
+
+
+aid=a9e3b67c7883497f6d18fdd1517b177d event_simpleName="DnsRequest" | rename ContextProcessId_decimal as TargetProcessId_decimal | join TargetProcessId_decimal [search aid=a9e3b67c7883497f6d18fdd1517b177d event_simpleName="ProcessRollup2" ImageFileName="notepad.exe"] | table ComputerName timestamp ImageFileName DomainName CommandLine

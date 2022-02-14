@@ -1,0 +1,2 @@
+event_simpleName=ProcessRollup2 FileName=powershell.exe (CommandLine=*-enc* OR CommandLine=*encoded*) | table ComputerName UserName FileName CommandLine
+

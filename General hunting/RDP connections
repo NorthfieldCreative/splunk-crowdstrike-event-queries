@@ -1,0 +1,1 @@
+event_simpleName=UserIdentity LogonType_decimal=10 | table timestamp ComputerName UserName UserPrincipal LogonServer

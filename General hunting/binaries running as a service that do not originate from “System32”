@@ -1,0 +1,1 @@
+event_simpleName=ServiceStarted ImageFileName!="*\\System32\\*" | table aid ServiceDisplayName ImageFileName CommandLine ClientComputerName RemoteAddressIP4 RemoteAddressIP6

@@ -1,0 +1,1 @@
+event_simpleName="ScheduledTaskRegistered" | spath input=TaskXml output=ClassId path=Task.Actions.ComHandler.ClassId | search ClassId=*

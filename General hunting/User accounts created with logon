@@ -1,0 +1,1 @@
+event_simpleName="UserIdentity" [search event_simpleName=UserAccountCreated | fields cid UserName]

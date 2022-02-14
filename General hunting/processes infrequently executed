@@ -1,0 +1,1 @@
+aid=my-aid event_simpleName=ProcessRollup2 OR event_simpleName=SyntheticProcessRollup2 | stats count by SHA256HashData ImageFileName ComputerName UserName | where count <5 | sort – count

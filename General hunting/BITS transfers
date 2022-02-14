@@ -1,0 +1,1 @@
+event_simpleName=ProcessRollup2 FileName=bitsadmin.exe (CommandHistory=*/Transfer* OR CommandHistory=*/Addfile*) | dedup CommandHistory | table _time aid ComputerName UserName ImageFileName CommandHistory TargetFileName MD5HashData SHA256HashData | sort -_time

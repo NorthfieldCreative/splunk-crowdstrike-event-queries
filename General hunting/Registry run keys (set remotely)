@@ -1,0 +1,1 @@
+Run | Search event_simpleName=RegRemoteRegistry | table RemoteAddressIP4 ClientComputerName event_simpleName RegObjectName ImageFileName

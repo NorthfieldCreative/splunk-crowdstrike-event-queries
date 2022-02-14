@@ -1,0 +1,1 @@
+event_simpleName=ProcessRollup2 FileName=java.exe | rename TargetProcessId_decimal as ParentProcessId_decimal | join ParentProcessId_decimal [search event_simpleName=ProcessRollup2 FileName=whoami.exe] | table _time cid aid Customer ComputerName event_simpleName UserName ImageFileName CommandLine TargetFileName FileName MD5HashData SHA256HashData CommandHistory | sort -_time

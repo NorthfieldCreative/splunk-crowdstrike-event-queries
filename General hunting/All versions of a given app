@@ -1,0 +1,1 @@
+(event_simpleName=ProcessRollup* OR event_simpleName=ImageHash) FileName=SOFTWARE-NAME.EXE | dedup ImageFileName ComputerName | stats values(ComputerName) count by ImageFileName

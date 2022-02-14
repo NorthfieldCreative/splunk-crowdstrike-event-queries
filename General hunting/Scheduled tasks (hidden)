@@ -1,0 +1,1 @@
+event_simpleName="ScheduledTaskRegistered" | spath input=TaskXml output=Hidden path=Task.Settings.Hidden | search Hidden=true
