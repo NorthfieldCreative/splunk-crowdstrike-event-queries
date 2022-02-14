@@ -1,0 +1,47 @@
+https://www.reddit.com/r/crowdstrike/comments/olhnwf/20210716_cool_query_friday_cli_programs_running/
+
+
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 ShowWindowFlags_decimal=0
+| rename FileName AS runningExe
+| lookup local=true appinfo.csv SHA256HashData OUTPUT FileName FileDescription
+| fillnull FileName, FileDescription value="N/A"
+| eval runningExe=lower(runningExe)
+| eval cloudFileName=lower(FileName)
+| fields aid, ComputerName, runningExe cloudFileName, FileDescription
+| rename FileDescription as cloudFileDescription
+
+
+
+### CLI Programs with Hidden Windows Being Run By Non-SYSTEM User
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 ShowWindowFlags_decimal=0 UserSid_readable!=S-1-5-18
+
+
+
+### PowerShell Being Run In a Hidden Window By Non-SYSTEM User
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 ShowWindowFlags_decimal=0 UserSid_readable!=S-1-5-18 FileName=powershell.exe
+| rename FileName AS runningExe
+| lookup local=true appinfo.csv SHA256HashData OUTPUT FileName FileDescription
+| fillnull FileName, FileDescription value="N/A"
+| eval runningExe=lower(runningExe)
+| eval cloudFileName=lower(FileName)
+| stats values(UserName) as userName dc(aid) as systemCount count(aid) as runCount by runningExe, CommandLine
+| rename FileDescription as cloudFileDescription, SHA256HashData as sha256
+| sort +systemCount, +runCount
+
+
+
+
+### CMD Running In a Hidden Window and Spawning PowerShell
+
+event_platform=win event_simpleName=ProcessRollup2 ImageSubsystem_decimal=3 ShowWindowFlags_decimal=0 FileName=cmd.exe CommandLine="*powershell*"
+| rename FileName AS runningExe
+| lookup local=true appinfo.csv SHA256HashData OUTPUT FileName FileDescription
+| fillnull FileName, FileDescription value="N/A"
+| eval runningExe=lower(runningExe)
+| eval cloudFileName=lower(FileName)
+| stats values(UserName) as userName dc(aid) as systemCount count(aid) as runCount by runningExe, CommandLine
+| rename FileDescription as cloudFileDescription, SHA256HashData as sha256
+| sort +systemCount, +runCount

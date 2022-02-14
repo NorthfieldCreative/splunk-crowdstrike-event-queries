@@ -1,0 +1,6 @@
+### where DnSRequest is an event to be substituted
+
+earliest=-1m event_simpleName IN (ProcessRollup2, DnsRequest)
+| eval endpointTime=mvappend(ContextTimeStamp_decimal, ProcessStartTime_decimal)
+| table event_simpleName _time endpointTime
+| convert ctime(endpointTime)

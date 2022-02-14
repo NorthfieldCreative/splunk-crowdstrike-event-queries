@@ -1,0 +1,62 @@
+https://www.reddit.com/r/crowdstrike/comments/ouk533/20210730_cool_query_friday_command_line_scoring/
+
+
+### first:
+
+event_platform=win event_simpleName=ProcessRollup2 (FileName=cmd.exe OR FileName=powershell.exe)
+| eval cmdLength=len(CommandLine)
+| stats avg(cmdLength) as avgCmdLength max(cmdLength) as maxCmdLength min(cmdLength) as minCmdLength stdev(cmdLength) as stdevCmdLength by FileName
+| eval cmdBogey=avgCmdLength+stdevCmdLength
+
+
+
+### take note of cmdBogey and/or avgCmdLength values apply them to the lengths below:
+
+event_platform=win event_simpleName=ProcessRollup2 (FileName=cmd.exe OR FileName=powershell.exe)
+| eval cmdLength=len(CommandLine)
+| eval isLongCmd=if(cmdLength>160 AND FileName=="cmd.exe","2","0")
+| eval isLongPS=if(cmdLength>932 AND FileName=="powershell.exe","2","0")
+| eval carrotCount = mvcount(split(CommandLine,"^"))-1
+| eval tickCount = mvcount(split(CommandLine,"`"))-1
+| eval escapeCharacters=tickCount+carrotCount
+| eval cmdNoEscape=trim(replace(CommandLine, "^", ""))
+| eval cmdNoEscape=trim(replace(cmdNoEscape, "`", ""))
+| eval cmdScore=isLongCmd+isLongPS+escapeCharacters
+| fields aid ComputerName FileName CommandLine cmdLength escapeCharacters cmdScore
+
+
+
+##### extra scoring:
+
+
+event_platform=win event_simpleName=ProcessRollup2 (FileName=cmd.exe OR FileName=powershell.exe)
+| eval cmdLength=len(CommandLine)
+| eval isLongCmd=if(cmdLength>129 AND FileName=="cmd.exe","2","0")
+| eval isLongPS=if(cmdLength>1980 AND FileName=="powershell.exe","2","0")
+| eval carrotCount = mvcount(split(CommandLine,"^"))-1
+| eval tickCount = mvcount(split(CommandLine,"`"))-1
+| eval escapeCharacters=tickCount+carrotCount
+| eval cmdNoEscape=trim(replace(CommandLine, "^", ""))
+| eval cmdNoEscape=trim(replace(cmdNoEscape, "`", ""))
+| eval isAcceptEULA=if(like(cmdNoEscape, "%accepteula%"), "10", "0")
+| eval isEncoded=if(like(cmdNoEscape, "% -e%"), "5", "0")
+| eval isBypass=if(like(cmdNoEscape, "% bypass %"), "5", "0")
+| eval invokePS=if(like(cmdNoEscape, "%powershell%"), "1", "0")
+| eval invokeWMIC=if(like(cmdNoEscape, "%wmic%"), "3", "0")
+| eval invokeCscript=if(like(cmdNoEscape, "%cscript%"), "3", "0")
+| eval invokeWscipt=if(like(cmdNoEscape, "%wscript%"), "3", "0")
+| eval invokeHttp=if(like(cmdNoEscape, "%http%"), "3", "0")
+| eval isSystemUser=if(like(cmdNoEscape, "S-1-5-18"), "0", "1")
+| eval stdOutRedirection=if(like(cmdNoEscape, "%>%"), "1", "0")
+| eval isHidden=if(like(cmdNoEscape, "%hidden%"), "3", "0")
+| eval cmdScore=isLongCmd+escapeCharacters+isAcceptEULA+isEncoded+isBypass+invokePS+invokeWMIC+invokeCscript+invokeWscipt+invokeHttp+isSystemUser+stdOutRedirection+isHidden
+| stats dc(aid) as uniqueSystems count(aid) as exeuctionCount by FileName, cmdScore, CommandLine, cmdLength, isLongCmd, escapeCharacters, isAcceptEULA, isEncoded, isBypass, invokePS, invokeWMIC, invokeCscript, invokeWscipt, invokeHttp, isSystemUser, stdOutRedirection, isHidden
+| eval CommandLine=substr(CommandLine,1,250)
+| sort - cmdScore
+
+
+### exclusions:
+
+event_platform=win event_simpleName=ProcessRollup2 (FileName=cmd.exe OR FileName=powershell.exe)
+| search ParentBaseFileName!=tainium.exe
+| eval cmdLength=len(CommandLine)

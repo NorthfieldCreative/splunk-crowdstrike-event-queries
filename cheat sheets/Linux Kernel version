@@ -1,0 +1,8 @@
+index=main sourcetype=OsVersionInfo* event_platform=lin event_simpleName=OsVersionInfo
+| fields aid, OSVersionString
+|  rex field=OSVersionString "Linux\s+\S+\s+(?<kernelVersion>.*)\s+\#.*"
+| stats latest(kernelVersion) as kernelVersion by aid
+| lookup local=true aid_master aid OUTPUT ComputerName, Version, Timezone, AgentVersion, BiosManufacturer, Continent, Country, FirstSeen
+| convert ctime(FirstSeen)
+| table aid, ComputerName, Version, kernelVersion, AgentVersion, FirstSeen, BiosManufacturer, Continent, Country, Timezone
+| rename aid as "Falcon Agent ID", ComputerName as "Endpoint", Version as "OS", kernelVersion as "Kernel", AgentVersion as "Falcon Version", FirstSeen as "Falcon Install Date", BiosManufacturer as "BIOS Maker"

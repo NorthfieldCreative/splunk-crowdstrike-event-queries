@@ -1,0 +1,6 @@
+earliest=-1m event_simpleName IN (ProcessRollup2)
+| eval myUTCoffset=-7
+| eval myLocalTime=ProcessStartTime_decimal+(myUTCoffset*60*60)
+| table FileName _time ProcessStartTime_decimal myLocalTime
+| rename ProcessStartTime_decimal as endpointSystemClockUTC, _time as cloudTimeUTC
+| convert ctime(cloudTimeUTC), ctime(endpointSystemClockUTC), ctime(myLocalTime)

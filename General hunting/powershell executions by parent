@@ -1,0 +1,3 @@
+event_platform=win event_simpleName=ProcessRollup2 FileName=powershell.exe ProductType=3 
+| stats  dc(aid) as endpointCount count(aid) as executionCount by ParentBaseFileName, FileName  
+| sort  - executionCount

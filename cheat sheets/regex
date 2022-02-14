@@ -1,0 +1,7 @@
+rex field=DomainName "[@\.](?<tlDomain>\w+\.\w+)$"
+
+
+earliest=-15m event_simpleName=DnsRequest
+| rex field=DomainName "[@\.](?<tlDomain>\w+\.\w+)$"
+| stats dc(DomainName) as subDomainCount, values(DomainName) as subDomain by tlDomain
+| sort - subDomainCount

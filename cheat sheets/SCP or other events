@@ -1,0 +1,2 @@
+event_platfrom=lin event_simpleName=ProcessRollup2 FileName IN (scp, sftp)
+| table _time ComputerName FileName CommandLine

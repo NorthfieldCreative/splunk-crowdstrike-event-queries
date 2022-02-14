@@ -1,0 +1,1 @@
+| eval systemType=case(ProductType_decimal=1, "Workstation", ProductType_decimal=2, "Domain Controller", ProductType_decimal=3, "Server")

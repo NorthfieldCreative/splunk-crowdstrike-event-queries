@@ -1,0 +1,13 @@
+
+
+### searching for domains. Fill in as appropriate
+
+index=main sourcetype=CommandHistory* event_platform=win event_simpleName=CommandHistory
+| rex field=CommandHistory ".*(?<passedURL>http(|s)\:\/\/.*\.(net|com|org|io)).*"
+| where isnotnull(passedURL)
+| fillnull ApplicationName value="powershell.exe"
+| eval timestamp=timestamp/1000
+| table timestamp ComputerName ApplicationName TargetProcessId_decimal passedURL CommandHistory 
+| search ComputerName!=DESKTOP-ICAKMS8 AND passedURL!="*.crowdstrike.*" AND passedURL!="*.microsoft.*"
+| convert ctime(timestamp)
+| rename timestamp as Time, ComputerName as Endpoint, ApplicationName as "Responsible Application", TargetProcessId_decimal as "Falcon PID", passedURL as "URL Fragment", CommandHistory as "Complete Command Context"

@@ -1,0 +1,12 @@
+event_platform=lin event_simpleName=CriticalEnvironmentVariableChanged, EnvironmentVariableName IN (SSH_CONNECTION, USER) 
+| eventstats list(EnvironmentVariableName) as EnvironmentVariableName,list(EnvironmentVariableValue) as EnvironmentVariableValue by aid, ContextProcessId_decimal
+| eval tempData=mvzip(EnvironmentVariableName,EnvironmentVariableValue,":")
+| rex field=tempData "SSH_CONNECTION\:((?<clientIP>\d+\.\d+\.\d+\.\d+)\s+(?<rPort>\d+)\s+(?<serverIP>\d+\.\d+\.\d+\.\d+)\s+(?<lPort>\d+))"
+| rex field=tempData "USER\:(?<userName>.*)"
+| where isnotnull(clientIP)
+| iplocation clientIP
+| lookup local=true aid_master aid OUTPUT Version as osVersion, Country as sshServerCountry
+| fillnull City, Country, Region value="-"
+| table _time aid ComputerName sshServerCountry osVersion serverIP lPort userName clientIP rPort City Region Country
+| where isnotnull(userName)
+| sort +ComputerName, +_time

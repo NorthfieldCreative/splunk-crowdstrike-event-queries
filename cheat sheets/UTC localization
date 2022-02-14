@@ -1,0 +1,2 @@
+| eval myUTCoffset=-4
+| eval myLocalTime=ProcessStartTime_decimal+(60*60*myUTCoffset)
