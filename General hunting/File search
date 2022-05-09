@@ -1,0 +1,1 @@
+event_simpleName=ProcessRollup2 FileName=PatientEducation_Setup.exe | table event_simpleName ComputerName timestamp TargetFileName SHA256HashData
